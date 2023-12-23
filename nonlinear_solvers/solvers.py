@@ -3,9 +3,7 @@
 
 class ConvergenceError(Exception):
     """Exception raised if a solver fails to converge."""
-
-    pass
-
+    pass 
 
 def newton_raphson(f, df, x_0, eps=1.0e-5, max_its=20):
     """Solve a nonlinear equation using Newton-Raphson iteration.
@@ -14,7 +12,7 @@ def newton_raphson(f, df, x_0, eps=1.0e-5, max_its=20):
 
     Parameters
     ----------
-    f : function(x: float) -> float
+    f : function(x: float) -> float 
         The function whose root is being found.
     df : function(x: float) -> float
         The derivative of f.
@@ -31,9 +29,23 @@ def newton_raphson(f, df, x_0, eps=1.0e-5, max_its=20):
     float
         The approximate root computed using Newton iteration.
     """
-    # Delete these two lines when implementing the method.
-    raise NotImplementedError
-
+    for i in range(max_its+1):
+        if abs(f(x_0)) < eps:
+            return x_0
+        x_1 = x_0 - f(x_0)/df(x_0)
+        x_0 = x_1 
+    raise ConvergenceError("The newton_raphson solver failed to converge !")
+    
+    # try:
+    #     for i in range(max_its+1):
+    #         if abs(f(x_0)) < eps:
+    #             return x_0
+    #         x_1 = x_0 - f(x_0)/df(x_0)
+    #         x_0 = x_1 
+    #     raise ConvergenceError
+    # except ConvergenceError:
+    #     print("The newton_raphson solver failed to converge !")
+    #     raise ConvergenceError
 
 def bisection(f, x_0, x_1, eps=1.0e-5, max_its=20):
     """Solve a nonlinear equation using bisection.
@@ -60,8 +72,18 @@ def bisection(f, x_0, x_1, eps=1.0e-5, max_its=20):
     float
         The approximate root computed using bisection.
     """
-    # Delete these two lines when implementing the method.
-    raise NotImplementedError
+    if f(x_0)*f(x_1) > 0:
+        raise ValueError("f(x_0) and f(x_1) must differ in sign.")
+    
+    for i in range(1, max_its+1):
+        x_mid = (x_0 + x_1)/2
+        if abs(f(x_mid)) < eps:
+            return x_mid
+        if f(x_0)*f(x_mid) > 0:
+            x_0 = x_mid
+        else:
+            x_1 = x_mid
+    raise ConvergenceError("The bisection solver failed to converge !")
 
 
 def solve(f, df, x_0, x_1, eps=1.0e-5, max_its_n=20, max_its_b=20):
@@ -95,5 +117,12 @@ def solve(f, df, x_0, x_1, eps=1.0e-5, max_its_n=20, max_its_b=20):
     float
         The approximate root.
     """
-    # Delete these two lines when implementing the method.
-    raise NotImplementedError
+    try:
+        x_n = newton_raphson(f, df, x_0, eps, max_its_n)
+    except ConvergenceError:
+        print("Newton-Raphson method failed to converge. Now trying Bisection method")
+        x_b = bisection(f, x_0, x_1, eps, max_its_b)
+    else:
+        return x_n
+    
+    return x_b
